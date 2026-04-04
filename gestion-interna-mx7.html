@@ -87,6 +87,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .b-gray{background:rgba(255,255,255,.06);color:var(--muted2)}
 .b-green{background:rgba(40,200,80,.1);color:#50dd80}
 .b-amber{background:rgba(240,160,48,.1);color:#f0a030}
+.b-purple{background:rgba(150,100,255,.1);color:#bb88ff}
+.b-orange{background:rgba(255,140,0,.1);color:#ff9933}
+.b-teal{background:rgba(0,200,180,.1);color:#00c8b4}
+.b-teal2{background:rgba(0,180,120,.1);color:#00b478}
 
 /* BUTTONS */
 .btn{font-size:12px;padding:7px 16px;border-radius:99px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border:0.5px solid var(--border2);background:transparent;color:var(--muted2)}
@@ -297,7 +301,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <option value="prospecto">Prospecto</option>
           <option value="formulando">Formulando</option>
           <option value="enviado">Enviado</option>
+          <option value="en_espera">En espera de resultado</option>
+          <option value="recurso_reposicion">Recurso de reposición</option>
+          <option value="reformulando">Reformulando</option>
           <option value="adjudicado">Adjudicado</option>
+          <option value="formalizacion">Formalización</option>
+          <option value="ejecucion">Ejecución</option>
           <option value="rechazado">Rechazado</option>
         </select>
       </div>
@@ -638,9 +647,9 @@ async function renderProyectos(){
   const c=document.getElementById('main-content');
   c.innerHTML='<div class="loading"><div class="spin"></div> Cargando...</div>';
   const{data}=await sb.from('proyectos').select('*,empresas(nombre)').not('etapa','eq','historico').order('created_at',{ascending:false});
-  const etapas=['prospecto','formulando','enviado','adjudicado'];
-  const labels={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',adjudicado:'Adjudicado'};
-  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+  const etapas=['prospecto','formulando','enviado','en_espera','recurso_reposicion','reformulando','adjudicado','formalizacion','ejecucion','rechazado'];
+  const labels={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',en_espera:'En espera',recurso_reposicion:'Rec. reposición',reformulando:'Reformulando',adjudicado:'Adjudicado',formalizacion:'Formalización',ejecucion:'Ejecución',rechazado:'Rechazado'};
+  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(10,minmax(140px,1fr));gap:8px;overflow-x:auto;padding-bottom:8px">
     ${etapas.map(e=>{
       const items=(data||[]).filter(p=>p.etapa===e);
       return`<div>
@@ -867,7 +876,12 @@ async function renderProyecto(){
             <option value="prospecto" ${proyectoActivo.etapa==='prospecto'?'selected':''}>Prospecto</option>
             <option value="formulando" ${proyectoActivo.etapa==='formulando'?'selected':''}>Formulando</option>
             <option value="enviado" ${proyectoActivo.etapa==='enviado'?'selected':''}>Enviado</option>
+            <option value="en_espera" ${proyectoActivo.etapa==='en_espera'?'selected':''}>En espera de resultado</option>
+            <option value="recurso_reposicion" ${proyectoActivo.etapa==='recurso_reposicion'?'selected':''}>Recurso de reposición</option>
+            <option value="reformulando" ${proyectoActivo.etapa==='reformulando'?'selected':''}>Reformulando</option>
             <option value="adjudicado" ${proyectoActivo.etapa==='adjudicado'?'selected':''}>Adjudicado</option>
+            <option value="formalizacion" ${proyectoActivo.etapa==='formalizacion'?'selected':''}>Formalización</option>
+            <option value="ejecucion" ${proyectoActivo.etapa==='ejecucion'?'selected':''}>Ejecución</option>
             <option value="rechazado" ${proyectoActivo.etapa==='rechazado'?'selected':''}>Rechazado</option>
             <option value="historico" ${proyectoActivo.etapa==='historico'?'selected':''}>Mover a histórico</option>
           </select>
@@ -1021,8 +1035,32 @@ function formatFecha(f){
 }
 function diasColor(f){if(!f)return'';const d=Math.ceil((new Date(f)-new Date())/(1000*60*60*24));return d<=7?'color:var(--rose2);font-weight:500':d<=21?'color:#f0a030;font-weight:500':'color:var(--muted2)'}
 function badgeEtapa(e){
-  const cls={prospecto:'b-blue',formulando:'b-lime',enviado:'b-rose',adjudicado:'b-green',rechazado:'b-gray',historico:'b-amber'};
-  const lbl={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',adjudicado:'Adjudicado',rechazado:'Rechazado',historico:'Histórico'};
+  const cls={
+    prospecto:'b-blue',
+    formulando:'b-lime',
+    enviado:'b-rose',
+    en_espera:'b-purple',
+    recurso_reposicion:'b-orange',
+    reformulando:'b-amber',
+    adjudicado:'b-green',
+    formalizacion:'b-teal',
+    ejecucion:'b-teal2',
+    rechazado:'b-gray',
+    historico:'b-amber'
+  };
+  const lbl={
+    prospecto:'Prospecto',
+    formulando:'Formulando',
+    enviado:'Enviado',
+    en_espera:'En espera',
+    recurso_reposicion:'Rec. reposición',
+    reformulando:'Reformulando',
+    adjudicado:'Adjudicado',
+    formalizacion:'Formalización',
+    ejecucion:'Ejecución',
+    rechazado:'Rechazado',
+    historico:'Histórico'
+  };
   return`<span class="badge ${cls[e]||'b-gray'}">${lbl[e]||e}</span>`;
 }
 </script>
