@@ -325,6 +325,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="form-group"><label>Descripción</label>
       <textarea id="p-desc" placeholder="Breve descripción del proyecto..."></textarea>
     </div>
+    <div class="form-group"><label>Nombre oficial CORFO/ANID</label>
+      <input type="text" id="p-nombre-corfo" placeholder="Nombre exacto enviado a la plataforma (opcional)">
+    </div>
     <input type="hidden" id="p-id">
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-proyecto')">Cancelar</button>
@@ -653,30 +656,116 @@ async function renderEmpresas(){
 }
 
 // ── PROYECTOS KANBAN ───────────────────────
+let _proyectosData=[];
 async function renderProyectos(){
   const c=document.getElementById('main-content');
   c.innerHTML='<div class="loading"><div class="spin"></div> Cargando...</div>';
-  const{data}=await sb.from('proyectos').select('*,empresas(nombre)').not('etapa','eq','historico').order('created_at',{ascending:false});
+  const[{data},{data:empresasList}]=await Promise.all([
+    sb.from('proyectos').select('*,empresas(nombre)').not('etapa','eq','historico').order('created_at',{ascending:false}),
+    sb.from('empresas').select('id,nombre').order('nombre')
+  ]);
+  _proyectosData=data||[];
   const etapas=['prospecto','formulando','enviado','en_espera','recurso_reposicion','reformulando','adjudicado','formalizacion','ejecucion','rechazado'];
   const labels={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',en_espera:'En espera',recurso_reposicion:'Rec. reposición',reformulando:'Reformulando',adjudicado:'Adjudicado',formalizacion:'Formalización',ejecucion:'Ejecución',rechazado:'Rechazado'};
-  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(10,minmax(140px,1fr));gap:8px;overflow-x:auto;padding-bottom:8px">
-    ${etapas.map(e=>{
-      const items=(data||[]).filter(p=>p.etapa===e);
-      return`<div>
-        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
-          ${labels[e]}<span style="background:var(--bg3);border:0.5px solid var(--border);border-radius:99px;padding:1px 7px;font-size:10px">${items.length}</span>
-        </div>
-        ${items.map(p=>`<div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:8px;cursor:pointer;transition:border-color .2s"
-          onmouseover="this.style.borderColor='rgba(255,255,255,.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'"
-          onclick='navegarProyecto(${JSON.stringify(p)})'>
-          <div style="font-size:13px;font-weight:500;margin-bottom:.2rem">${p.empresas?.nombre||'—'}</div>
-          <div style="font-size:12px;color:var(--muted2);margin-bottom:.6rem">${p.instrumento||'—'}</div>
-          ${p.fecha_cierre?`<div style="font-size:11px;${diasColor(p.fecha_cierre)}">⏱ ${formatFecha(p.fecha_cierre)}</div>`:''}
-        </div>`).join('')}
-        ${!items.length?`<div style="border:0.5px dashed var(--border);border-radius:12px;padding:1.25rem;text-align:center;font-size:12px;color:var(--muted)">Sin proyectos</div>`:''}
-      </div>`;
-    }).join('')}
-  </div>`;
+  const instrumentosUnicos=[...new Set(_proyectosData.map(p=>p.instrumento).filter(Boolean))].sort();
+
+  c.innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+      <select id="f-empresa" onchange="filtrarProyectos()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
+        <option value="">Todas las empresas</option>
+        ${(empresasList||[]).map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('')}
+      </select>
+      <select id="f-instrumento" onchange="filtrarProyectos()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
+        <option value="">Todos los instrumentos</option>
+        ${instrumentosUnicos.map(i=>`<option value="${i}">${i}</option>`).join('')}
+      </select>
+      <select id="f-etapa" onchange="filtrarProyectos()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
+        <option value="">Todas las etapas</option>
+        ${etapas.map(e=>`<option value="${e}">${labels[e]}</option>`).join('')}
+      </select>
+      <button class="btn btn-xs" onclick="resetFiltros()">Limpiar filtros</button>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-xs" id="btn-kanban" onclick="setVista('kanban')" style="border-color:rgba(170,204,42,.4);color:var(--lime)">Kanban</button>
+        <button class="btn btn-xs" id="btn-tabla" onclick="setVista('tabla')">Tabla</button>
+      </div>
+    </div>
+    <div id="proyectos-vista"></div>`;
+
+  renderVistaProyectos('kanban', _proyectosData, etapas, labels);
+}
+
+function setVista(v){
+  const etapas=['prospecto','formulando','enviado','en_espera','recurso_reposicion','reformulando','adjudicado','formalizacion','ejecucion','rechazado'];
+  const labels={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',en_espera:'En espera',recurso_reposicion:'Rec. reposición',reformulando:'Reformulando',adjudicado:'Adjudicado',formalizacion:'Formalización',ejecucion:'Ejecución',rechazado:'Rechazado'};
+  document.getElementById('btn-kanban').style.cssText=v==='kanban'?'border-color:rgba(170,204,42,.4);color:var(--lime)':'';
+  document.getElementById('btn-tabla').style.cssText=v==='tabla'?'border-color:rgba(170,204,42,.4);color:var(--lime)':'';
+  renderVistaProyectos(v, filtrarDatos(), etapas, labels);
+}
+
+function filtrarDatos(){
+  const emp=document.getElementById('f-empresa')?.value||'';
+  const inst=document.getElementById('f-instrumento')?.value||'';
+  const etapa=document.getElementById('f-etapa')?.value||'';
+  return _proyectosData.filter(p=>
+    (!emp||p.empresa_id===emp)&&
+    (!inst||p.instrumento===inst)&&
+    (!etapa||p.etapa===etapa)
+  );
+}
+
+function filtrarProyectos(){
+  const etapas=['prospecto','formulando','enviado','en_espera','recurso_reposicion','reformulando','adjudicado','formalizacion','ejecucion','rechazado'];
+  const labels={prospecto:'Prospecto',formulando:'Formulando',enviado:'Enviado',en_espera:'En espera',recurso_reposicion:'Rec. reposición',reformulando:'Reformulando',adjudicado:'Adjudicado',formalizacion:'Formalización',ejecucion:'Ejecución',rechazado:'Rechazado'};
+  const vista=document.getElementById('btn-kanban').style.color?'kanban':'tabla';
+  renderVistaProyectos(vista, filtrarDatos(), etapas, labels);
+}
+
+function resetFiltros(){
+  document.getElementById('f-empresa').value='';
+  document.getElementById('f-instrumento').value='';
+  document.getElementById('f-etapa').value='';
+  filtrarProyectos();
+}
+
+function renderVistaProyectos(vista, data, etapas, labels){
+  const el=document.getElementById('proyectos-vista');
+  if(vista==='kanban'){
+    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(10,minmax(140px,1fr));gap:8px;overflow-x:auto;padding-bottom:8px">
+      ${etapas.map(e=>{
+        const items=(data||[]).filter(p=>p.etapa===e);
+        return`<div>
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+            ${labels[e]}<span style="background:var(--bg3);border:0.5px solid var(--border);border-radius:99px;padding:1px 7px;font-size:10px">${items.length}</span>
+          </div>
+          ${items.map(p=>`<div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:8px;cursor:pointer;transition:border-color .2s"
+            onmouseover="this.style.borderColor='rgba(255,255,255,.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'"
+            onclick='navegarProyecto(${JSON.stringify(p)})'>
+            <div style="font-size:13px;font-weight:500;margin-bottom:.2rem">${p.empresas?.nombre||'—'}</div>
+            <div style="font-size:12px;color:var(--muted2);margin-bottom:.3rem">${p.nombre}</div>
+            ${p.nombre_corfo?`<div style="font-size:11px;color:var(--muted);margin-bottom:.3rem;font-style:italic">${p.nombre_corfo}</div>`:''}
+            ${p.fecha_cierre?`<div style="font-size:11px;${diasColor(p.fecha_cierre)}">⏱ ${formatFecha(p.fecha_cierre)}</div>`:''}
+          </div>`).join('')}
+          ${!items.length?`<div style="border:0.5px dashed var(--border);border-radius:12px;padding:1.25rem;text-align:center;font-size:12px;color:var(--muted)">Sin proyectos</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  } else {
+    el.innerHTML=`<div class="table-card">
+      <table><thead><tr>
+        <th>Empresa</th><th>Proyecto Mielina</th><th>Nombre CORFO/ANID</th><th>Instrumento</th><th>Etapa</th><th>Cierre</th><th></th>
+      </tr></thead>
+      <tbody>${(data||[]).length?(data||[]).map(p=>`<tr>
+        <td style="font-weight:500">${p.empresas?.nombre||'—'}</td>
+        <td>${p.nombre}</td>
+        <td style="color:var(--muted2);font-size:11px;max-width:180px">${p.nombre_corfo||'—'}</td>
+        <td style="color:var(--muted2);font-size:12px">${p.instrumento||'—'}</td>
+        <td>${badgeEtapa(p.etapa)}</td>
+        <td style="font-size:12px;${diasColor(p.fecha_cierre)}">${formatFecha(p.fecha_cierre)}</td>
+        <td><button class="btn btn-sm" onclick='navegarProyecto(${JSON.stringify(p)})'>Ver →</button></td>
+      </tr>`).join(''):'<tr><td colspan="7"><div class="empty"><div class="empty-text">Sin resultados</div></div></td></tr>'}
+      </tbody></table>
+    </div>`;
+  }
 }
 
 // ── HISTÓRICO ──────────────────────────────
@@ -932,13 +1021,14 @@ async function abrirModalProyecto(p=null,historico=false){
   document.getElementById('p-monto').value=p?.monto_maximo||'';
   document.getElementById('p-monto-sol').value=p?.monto_solicitado||'';
   document.getElementById('p-desc').value=p?.descripcion||'';
+  document.getElementById('p-nombre-corfo').value=p?.nombre_corfo||'';
   selectFuente(document.querySelector('#inst-fuente .inst-btn'),'CORFO');
   openModal('modal-proyecto');
 }
 async function guardarProyecto(){
   const id=document.getElementById('p-id').value;
   const instrumento=fuenteActiva==='Otro'?document.getElementById('p-instrumento-custom').value:document.getElementById('p-instrumento').value;
-  const data={empresa_id:document.getElementById('p-empresa').value||null,nombre:document.getElementById('p-nombre').value,instrumento,etapa:document.getElementById('p-etapa').value,fecha_cierre:document.getElementById('p-fecha').value||null,monto_maximo:document.getElementById('p-monto').value||null,descripcion:document.getElementById('p-desc').value};
+  const data={empresa_id:document.getElementById('p-empresa').value||null,nombre:document.getElementById('p-nombre').value,instrumento,etapa:document.getElementById('p-etapa').value,fecha_cierre:document.getElementById('p-fecha').value||null,monto_maximo:document.getElementById('p-monto').value||null,descripcion:document.getElementById('p-desc').value,nombre_corfo:document.getElementById('p-nombre-corfo').value||null};
   if(!data.nombre){toast('Ingresa el nombre','error');return}
   const{error}=id?await sb.from('proyectos').update(data).eq('id',id):await sb.from('proyectos').insert(data);
   if(error){toast('Error: '+error.message,'error');return}
