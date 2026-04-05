@@ -594,7 +594,7 @@ async function renderTablero(){
   const [{data:proyectos},{data:empresas},{data:hitos}]=await Promise.all([
     sb.from('proyectos').select('*,empresas(nombre)').neq('etapa','historico'),
     sb.from('empresas').select('id'),
-    sb.from('hitos_facturacion').select('*,proyectos(nombre,empresas(nombre))').eq('estado','pendiente')
+    sb.from('hitos_facturacion').select('*,proyectos(nombre,etapa,empresas(nombre))').eq('estado','pendiente')
   ]);
 
   // Valor UF del día via mindicador.cl
@@ -606,6 +606,8 @@ async function renderTablero(){
   }catch(e){}
 
   const etapasActivas=['formulando','enviado','en_espera','recurso_reposicion','reformulando','formalizacion','ejecucion'];
+  const etapasConHitos=['formulando','enviado','en_espera','recurso_reposicion','reformulando','formalizacion','ejecucion'];
+  const hitosFiltrados=(hitos||[]).filter(h=>etapasConHitos.includes(h.proyectos?.etapa));
   const enFormulacion=(proyectos||[]).filter(p=>['formulando','reformulando'].includes(p.etapa));
   const enEspera=(proyectos||[]).filter(p=>['enviado','en_espera','recurso_reposicion'].includes(p.etapa));
   const activos=(proyectos||[]).filter(p=>etapasActivas.includes(p.etapa));
@@ -626,7 +628,7 @@ async function renderTablero(){
       <div class="metric-card"><div class="metric-label">Adjudicados</div><div class="metric-val lime">${(proyectos||[]).filter(p=>p.etapa==='adjudicado').length}</div><div class="metric-sub">este ciclo</div></div>
     </div>
     <div class="metrics" style="margin-top:-8px">
-      <div class="metric-card"><div class="metric-label">Hitos por cobrar</div><div class="metric-val white">${(hitos||[]).length}</div><div class="metric-sub">pagos pendientes</div></div>
+      <div class="metric-card"><div class="metric-label">Hitos por cobrar</div><div class="metric-val white">${hitosFiltrados.length}</div><div class="metric-sub">pagos pendientes</div></div>
       <div class="metric-card"><div class="metric-label">Con alerta cierre</div><div class="metric-val rose">${alertas.length}</div><div class="metric-sub">≤21 días</div></div>
       <div class="metric-card"><div class="metric-label">Oportunidades</div><div class="metric-val white">${oportunidades.length}</div><div class="metric-sub">sin confirmar</div></div>
       <div class="metric-card"><div class="metric-label">Proyectos totales</div><div class="metric-val white">${activos.length}</div><div class="metric-sub">activos en cartera</div></div>
@@ -639,7 +641,7 @@ async function renderTablero(){
         <span style="font-size:11px;color:var(--muted2)">UF ${valorUF.toLocaleString('es-CL')}</span>
       </div>
       <table><thead><tr><th>Empresa</th><th>Proyecto</th><th>Hito</th><th>UF</th><th>CLP estimado</th><th>Descripción</th></tr></thead>
-      <tbody>${(hitos||[]).length?(hitos||[]).map(h=>`<tr>
+      <tbody>${hitosFiltrados.length?hitosFiltrados.map(h=>`<tr>
         <td style="font-weight:500">${h.proyectos?.empresas?.nombre||'—'}</td>
         <td style="font-size:12px">${h.proyectos?.nombre||'—'}</td>
         <td style="font-size:12px">${h.nombre}</td>
