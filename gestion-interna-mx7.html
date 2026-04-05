@@ -842,15 +842,25 @@ async function renderFacturacion(){
   let valorUF=37000;
   try{const r=await fetch('https://mindicador.cl/api/uf');const d=await r.json();valorUF=d.serie[0].valor;}catch(e){}
 
-  // Subsidios máximos por instrumento para proyección de variables
-  const subsidioMax={
-    'Consolida y Expande — Nacional':150000000,
-    'Consolida y Expande — Internacional':150000000,
-    'Innova Alta Tecnología':1000000000,
-    'Ley I+D — Crédito tributario':376917977,
-    'Startup Ciencia':134550000,
+  // Subsidios máximos por instrumento — busca por coincidencia parcial
+  const getSubsidio=(instrumento)=>{
+    if(!instrumento)return 0;
+    if(instrumento.includes('Consolida y Expande'))return 150000000;
+    if(instrumento.includes('Innova Alta Tecnología'))return 1000000000;
+    if(instrumento.includes('Ley I+D')||instrumento.includes('Ley 20.241'))return 376917977;
+    if(instrumento.includes('Startup Ciencia'))return 134550000;
+    if(instrumento.includes('Capital Humano'))return 40000000;
+    if(instrumento.includes('Crea y Valida'))return 100000000;
+    return 0;
   };
-  const pctVariable={'Consolida y Expande — Nacional':0.015,'Consolida y Expande — Internacional':0.015,'Innova Alta Tecnología':0.008,'Ley I+D — Crédito tributario':0.008,'Startup Ciencia':0.015};
+  const getPct=(instrumento)=>{
+    if(!instrumento)return 0;
+    if(instrumento.includes('Consolida y Expande'))return 0.015;
+    if(instrumento.includes('Innova Alta Tecnología'))return 0.008;
+    if(instrumento.includes('Ley I+D')||instrumento.includes('Ley 20.241'))return 0.008;
+    if(instrumento.includes('Startup Ciencia'))return 0.015;
+    return 0;
+  };
 
   const proyMap={};
   (proyectos||[]).forEach(p=>{proyMap[p.id]=p;});
@@ -872,15 +882,13 @@ async function renderFacturacion(){
   variables.forEach(h=>{
     const p=proyMap[h.proyecto_id];
     if(!p)return;
-    const subsidio=subsidioMax[p.instrumento]||0;
-    const pct=pctVariable[p.instrumento]||0;
-    potencialVariable+=subsidio*pct;
+    potencialVariable+=getSubsidio(p.instrumento)*getPct(p.instrumento);
   });
 
-  // Filtro empresa
-  let filtroEmpresa='';
-
-  const renderTablas=(empFiltro)=>{
+  // Hacer renderTablas global para que el filtro funcione
+  window._facturacionData={pagados,pendientes,variables,proyMap,valorUF,fmtClp,fmtUF,getSubsidio,getPct};
+  window.renderTablasFacturacion=(empFiltro)=>{
+    const{pagados,pendientes,variables,proyMap,valorUF,fmtClp,fmtUF,getSubsidio,getPct}=window._facturacionData;
     const hitosP=empFiltro?pagados.filter(h=>proyMap[h.proyecto_id]?.empresa_id===empFiltro):pagados;
     const hitosC=empFiltro?pendientes.filter(h=>proyMap[h.proyecto_id]?.empresa_id===empFiltro):pendientes;
     const hitosV=empFiltro?variables.filter(h=>proyMap[h.proyecto_id]?.empresa_id===empFiltro):variables;
@@ -893,33 +901,33 @@ async function renderFacturacion(){
         <td style="font-size:12px">${p.nombre||'—'}</td>
         <td style="font-size:12px">${h.nombre}</td>
         <td style="color:var(--lime)">${h.monto_uf?fmtUF(h.monto_uf):'—'}</td>
-        <td style="color:var(--lime)">${fmtClp(clp)}</td>
+        <td style="color:var(--lime)">${clp?fmtClp(clp):'—'}</td>
         <td>${badgeHito(h.estado)}</td>
       </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin registros</div></div></td></tr>`;
 
-    document.getElementById('tabla-pendientes').innerHTML=hitosC.length?hitosC.map(h=>{
+    document.getElementById('tabla-pendientes').innerHTML=hitosC.filter(h=>h.monto_uf||h.monto).length?hitosC.filter(h=>h.monto_uf||h.monto).map(h=>{
       const p=proyMap[h.proyecto_id]||{};
       const clp=h.monto_uf?h.monto_uf*valorUF:h.monto||0;
       return`<tr>
         <td style="font-weight:500">${p.empresas?.nombre||'—'}</td>
         <td style="font-size:12px">${p.nombre||'—'}</td>
         <td style="font-size:12px">${h.nombre}</td>
-        <td style="color:var(--amber,#f0a030)">${h.monto_uf?fmtUF(h.monto_uf):'—'}</td>
-        <td style="color:var(--amber,#f0a030)">${fmtClp(clp)||'—'}</td>
+        <td style="color:#f0a030">${h.monto_uf?fmtUF(h.monto_uf):'—'}</td>
+        <td style="color:#f0a030">${clp?fmtClp(clp):'—'}</td>
         <td style="font-size:11px;color:var(--muted2)">${h.descripcion||'—'}</td>
-      </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos pendientes</div></div></td></tr>`;
+      </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos fijos pendientes</div></div></td></tr>`;
 
     document.getElementById('tabla-potencial').innerHTML=hitosV.length?hitosV.map(h=>{
       const p=proyMap[h.proyecto_id]||{};
-      const subsidio=subsidioMax[p.instrumento]||0;
-      const pct=pctVariable[p.instrumento]||0;
+      const subsidio=getSubsidio(p.instrumento);
+      const pct=getPct(p.instrumento);
       const estimado=subsidio*pct;
       return`<tr>
         <td style="font-weight:500">${p.empresas?.nombre||'—'}</td>
         <td style="font-size:12px">${p.nombre||'—'}</td>
         <td style="font-size:12px;color:var(--muted2)">${p.instrumento||'—'}</td>
         <td style="font-size:12px;color:var(--muted2)">${h.descripcion||'—'}</td>
-        <td style="color:var(--muted2);font-size:12px">${fmtClp(subsidio)} subsidio máx.</td>
+        <td style="color:var(--muted2);font-size:12px">${subsidio?fmtClp(subsidio)+' máx.':'—'}</td>
         <td style="color:var(--lime)">${estimado?fmtClp(estimado):'Por definir'}</td>
       </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos variables</div></div></td></tr>`;
   };
@@ -952,7 +960,7 @@ async function renderFacturacion(){
 
     <!-- FILTRO -->
     <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center">
-      <select id="fac-empresa" onchange="filtroEmpresa=this.value;renderTablas(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
+      <select id="fac-empresa" onchange="renderTablasFacturacion(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--white);font-family:'DM Sans',sans-serif;outline:none">
         <option value="">Todas las empresas</option>
         ${(empresasList||[]).map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('')}
       </select>
@@ -1005,7 +1013,7 @@ async function renderFacturacion(){
       <tbody id="tabla-potencial"></tbody></table>
     </div>`;
 
-  renderTablas('');
+  renderTablasFacturacion('');
 }
 
 // ── HISTÓRICO ──────────────────────────────
