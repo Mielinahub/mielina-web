@@ -903,9 +903,15 @@ async function renderFacturacion(){
         <td style="color:var(--lime)">${h.monto_uf?fmtUF(h.monto_uf):'—'}</td>
         <td style="color:var(--lime)">${clp?fmtClp(clp):'—'}</td>
         <td>${badgeHito(h.estado)}</td>
-      </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin registros</div></div></td></tr>`;
+      </tr>`;}).join('')+`<tr style="background:rgba(170,204,42,.06);border-top:0.5px solid rgba(170,204,42,.2)">
+        <td colspan="3" style="font-weight:700;font-size:12px;color:var(--lime)">Total cobrado</td>
+        <td style="color:var(--lime);font-weight:700">${fmtUF(hitosP.reduce((s,h)=>s+(h.monto_uf||0),0))}</td>
+        <td style="color:var(--lime);font-weight:700">${fmtClp(hitosP.reduce((s,h)=>s+(h.monto_uf?h.monto_uf*valorUF:h.monto||0),0))}</td>
+        <td></td>
+      </tr>`:`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin registros</div></div></td></tr>`;
 
-    document.getElementById('tabla-pendientes').innerHTML=hitosC.filter(h=>h.monto_uf||h.monto).length?hitosC.filter(h=>h.monto_uf||h.monto).map(h=>{
+    const hitosCAux=hitosC.filter(h=>h.monto_uf||h.monto);
+    document.getElementById('tabla-pendientes').innerHTML=hitosCAux.length?hitosCAux.map(h=>{
       const p=proyMap[h.proyecto_id]||{};
       const clp=h.monto_uf?h.monto_uf*valorUF:h.monto||0;
       return`<tr>
@@ -915,7 +921,12 @@ async function renderFacturacion(){
         <td style="color:#f0a030">${h.monto_uf?fmtUF(h.monto_uf):'—'}</td>
         <td style="color:#f0a030">${clp?fmtClp(clp):'—'}</td>
         <td style="font-size:11px;color:var(--muted2)">${h.descripcion||'—'}</td>
-      </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos fijos pendientes</div></div></td></tr>`;
+      </tr>`;}).join('')+`<tr style="background:rgba(240,160,48,.06);border-top:0.5px solid rgba(240,160,48,.2)">
+        <td colspan="3" style="font-weight:700;font-size:12px;color:#f0a030">Total por cobrar</td>
+        <td style="color:#f0a030;font-weight:700">${fmtUF(hitosCAux.reduce((s,h)=>s+(h.monto_uf||0),0))}</td>
+        <td style="color:#f0a030;font-weight:700">${fmtClp(hitosCAux.reduce((s,h)=>s+(h.monto_uf?h.monto_uf*valorUF:h.monto||0),0))}</td>
+        <td></td>
+      </tr>`:`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos fijos pendientes</div></div></td></tr>`;
 
     document.getElementById('tabla-potencial').innerHTML=hitosV.length?hitosV.map(h=>{
       const p=proyMap[h.proyecto_id]||{};
@@ -929,7 +940,10 @@ async function renderFacturacion(){
         <td style="font-size:12px;color:var(--muted2)">${h.descripcion||'—'}</td>
         <td style="color:var(--muted2);font-size:12px">${subsidio?fmtClp(subsidio)+' máx.':'—'}</td>
         <td style="color:var(--lime)">${estimado?fmtClp(estimado):'Por definir'}</td>
-      </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos variables</div></div></td></tr>`;
+      </tr>`;}).join('')+`<tr style="background:rgba(170,204,42,.06);border-top:0.5px solid rgba(170,204,42,.2)">
+        <td colspan="5" style="font-weight:700;font-size:12px;color:var(--lime)">Potencial total estimado</td>
+        <td style="color:var(--lime);font-weight:700">${fmtClp(hitosV.reduce((s,h)=>{const p=proyMap[h.proyecto_id]||{};return s+getSubsidio(p.instrumento)*getPct(p.instrumento);},0))}</td>
+      </tr>`:`<tr><td colspan="6"><div class="empty"><div class="empty-text">Sin hitos variables</div></div></td></tr>`;
   };
 
   // Gráfico simple por empresa
