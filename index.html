@@ -115,13 +115,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .casos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .caso-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .3s,transform .3s}
 .caso-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-3px)}
-.caso-header{padding:1.5rem 1.5rem 1rem;border-bottom:0.5px solid var(--border)}
-.caso-sector{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9A9DA8;margin-bottom:.5rem}
-.caso-empresa{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;line-height:1.2;margin-bottom:.25rem;letter-spacing:-.01em;color:var(--white)}
+.caso-card{background:linear-gradient(160deg,var(--bg2),var(--bg3));position:relative}
+.caso-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--lime),var(--rose))}
+.caso-card.gestion::before{background:rgba(255,255,255,.15)}
+.caso-header{padding:1.5rem 1.5rem 1rem;border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:.75rem}
+.caso-logo{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px;color:#060708;background:linear-gradient(135deg,var(--lime),var(--rose));overflow:hidden}
+.caso-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.caso-sector{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9A9DA8;margin-bottom:.35rem}
+.caso-empresa{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;line-height:1.2;margin-bottom:.2rem;letter-spacing:-.01em;color:var(--white)}
 .caso-instrumento{font-size:11px;color:#6B6E7A}
+.caso-codigo{font-size:10px;color:#4E5058;margin-top:.15rem;font-family:monospace}
 .caso-body{padding:1.25rem 1.5rem}
-.caso-resultado{font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--lime),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:.3rem}
+.caso-proyecto{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:.4rem;color:var(--white)}
 .caso-desc{font-size:12px;color:#9A9DA8;line-height:1.55}
+.caso-monto-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6B6E7A;margin-top:.9rem}
+.caso-monto{font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--lime),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:.2rem}
 .caso-tag{display:inline-block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;margin-top:.75rem;background:rgba(170,204,42,.12);color:#C8EE40;font-weight:500}
 
 /* CATALOGO */
@@ -161,6 +169,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* BLOG */
 .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.blog-empty{grid-column:1/-1;text-align:center;padding:3rem 1.5rem;border:0.5px dashed var(--border2);border-radius:16px;color:#6B6E7A;font-size:13px}
+.blog-empty strong{display:block;color:#9A9DA8;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;margin-bottom:.4rem}
 .blog-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;padding:1.75rem;transition:border-color .25s,transform .3s;cursor:pointer;display:flex;flex-direction:column}
 .blog-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-3px)}
 .blog-cat{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--rose2);margin-bottom:.75rem}
@@ -275,32 +285,7 @@ footer{border-top:0.5px solid var(--border);padding:2rem 2.5rem;display:flex;ali
   <div class="section-tag reveal">Servicios</div>
   <div class="section-title reveal">Más que fondos<br>Inteligencia para innovar</div>
   <p class="section-sub reveal">Desde la estrategia hasta la ejecución — con o sin financiamiento público.</p>
-  <div class="services-grid reveal">
-    <div class="service-card">
-      <div class="service-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#AACC2A" stroke-width="1.5" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-      <h3>Estrategia de innovación</h3>
-      <p>Roadmaps tecnológicos, diagnóstico de capacidades I+D y posicionamiento estratégico para empresas que quieren crecer con foco. Más allá de los fondos.</p>
-      <div class="service-footer"><span class="tag-pill tl">Retainer mensual</span><a class="arrow-link" href="#catalogo">Ver planes <span>→</span></a></div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon-wrap" style="background:rgba(196,56,107,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4386B" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-      <h3>Formulación CORFO y ANID</h3>
-      <p>Diseño de propuestas para Crea y Valida, Alta Tecnología, Startup Ciencia y Ley I+D. Alineadas a criterios técnicos con foco en adjudicación.</p>
-      <div class="service-footer"><span class="tag-pill tr">Por proyecto</span><a class="arrow-link" href="#catalogo">Ver planes <span>→</span></a></div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#AACC2A" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-      <h3>Formación para equipos</h3>
-      <p>Talleres y programas en innovación, TRL y acceso a fondos públicos. Para equipos internos que quieren navegar el ecosistema.</p>
-      <div class="service-footer"><span class="tag-pill tg">A medida</span><a class="arrow-link" href="#catalogo">Ver planes <span>→</span></a></div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon-wrap" style="background:rgba(196,56,107,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4386B" stroke-width="1.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <h3>Diagnóstico Ley I+D</h3>
-      <p>Evaluación técnica para recuperar hasta un 35% de tus costos de I+D vía crédito tributario Ley 20.241. Informe en 72 hrs.</p>
-      <div class="service-footer"><span class="tag-pill tl">Desde USD $80</span><a class="arrow-link" href="#catalogo">Comprar <span>→</span></a></div>
-    </div>
-  </div>
+  <div class="services-grid reveal" id="servicios-grid"></div>
 </section>
 
 <div class="signal"></div>
@@ -309,12 +294,7 @@ footer{border-top:0.5px solid var(--border);padding:2rem 2.5rem;display:flex;ali
   <div class="section-tag reveal">Cómo trabajamos</div>
   <div class="section-title reveal">Cuatro formas de acompañarte</div>
   <p class="section-sub reveal">Elige el modelo que mejor calza con tu etapa y necesidad.</p>
-  <div class="model-grid">
-    <div class="model-card reveal"><div class="model-num">01</div><h3>Diagnóstico puntual</h3><p>Sesión de 90 min para revisar tu desafío, validar viabilidad y definir próximos pasos.</p></div>
-    <div class="model-card reveal reveal-delay-1"><div class="model-num">02</div><h3>Proyecto específico</h3><p>Formulación completa con revisión técnica y acompañamiento hasta el envío final.</p></div>
-    <div class="model-card reveal reveal-delay-2"><div class="model-num">03</div><h3>Retainer mensual</h3><p>Estrategia continua, seguimiento de proyectos activos e identificación de oportunidades.</p></div>
-    <div class="model-card reveal reveal-delay-3"><div class="model-num">04</div><h3>Recursos digitales</h3><p>Guías, templates y cursos para navegar el ecosistema de innovación chileno.</p></div>
-  </div>
+  <div class="model-grid" id="modelos-grid"></div>
 </section>
 
 <div class="signal"></div>
@@ -322,21 +302,12 @@ footer{border-top:0.5px solid var(--border);padding:2rem 2.5rem;display:flex;ali
 <section class="section" id="casos">
   <div class="section-tag reveal">Casos de éxito</div>
   <div class="section-title reveal">Proyectos que llegaron más lejos</div>
-  <p class="section-sub reveal">Empresas que acompañamos desde la idea hasta el financiamiento adjudicado.</p>
-  <div class="casos-grid">
-    <div class="caso-card reveal">
-      <div class="caso-header"><div class="caso-sector">Minería · CORFO Alta Tecnología</div><div class="caso-empresa">Empresa de automatización industrial</div><div class="caso-instrumento">CORFO — Alta Tecnología 2024</div></div>
-      <div class="caso-body"><div class="caso-resultado">$280M</div><p class="caso-desc">Proyecto de automatización en minería subterránea. Formulación completa en 6 semanas, adjudicado en primera evaluación.</p><span class="caso-tag">Adjudicado</span></div>
-    </div>
-    <div class="caso-card reveal reveal-delay-1">
-      <div class="caso-header"><div class="caso-sector">Agrotecnología · ANID</div><div class="caso-empresa">Startup de sensores agrícolas</div><div class="caso-instrumento">Startup Ciencia 2023</div></div>
-      <div class="caso-body"><div class="caso-resultado">$134M</div><p class="caso-desc">Solución IoT para monitoreo de cultivos. Diagnóstico, formulación y acompañamiento en evaluación técnica externa.</p><span class="caso-tag">Adjudicado</span></div>
-    </div>
-    <div class="caso-card reveal reveal-delay-2">
-      <div class="caso-header"><div class="caso-sector">Biotecnología · Ley I+D</div><div class="caso-empresa">Laboratorio de diagnóstico</div><div class="caso-instrumento">Ley 20.241 — Crédito tributario</div></div>
-      <div class="caso-body"><div class="caso-resultado">35%</div><p class="caso-desc">Identificación de actividades calificables y preparación del expediente. Recuperación en 3 ejercicios fiscales.</p><span class="caso-tag" style="background:rgba(196,56,107,.12);color:var(--rose2)">Recuperado</span></div>
-    </div>
-  </div>
+  <p class="section-sub reveal">Proyectos de I+D+i en los que hemos participado en su formulación, fortalecimiento técnico o ejecución.</p>
+  <div class="casos-grid" id="casos-adjudicado"></div>
+
+  <div class="section-tag reveal" style="margin-top:3rem">Gestión de proyectos adjudicados</div>
+  <p class="section-sub reveal" style="margin-bottom:2rem">Casos en que apoyamos posteriormente la ejecución, ajustes y rendición ante CORFO/ANID.</p>
+  <div class="casos-grid" id="casos-gestion"></div>
 </section>
 
 <div class="signal"></div>
@@ -345,47 +316,15 @@ footer{border-top:0.5px solid var(--border);padding:2rem 2.5rem;display:flex;ali
   <div class="section-tag reveal">Catálogo de servicios</div>
   <div class="section-title reveal" id="catalogo-titulo">Elige y parte hoy</div>
   <p class="section-sub reveal" id="catalogo-subtitulo">Servicios con precio claro y pago online — sin OC ni esperas.</p>
-  <div class="catalogo-grid">
-    <div class="catalogo-card reveal">
-      <div class="cat-tipo">Diagnóstico</div><h3>Sesión exploratoria</h3>
-      <p>90 minutos para revisar tu desafío, validar viabilidad y definir próximos pasos. Sin compromiso.</p>
-      <div class="cat-footer"><div class="cat-precio">Gratis <span>/ primera sesión</span></div><button class="btn-comprar" onclick="window.open('https://calendly.com/carlosmadridgomez','_blank')">Agendar</button></div>
-    </div>
-    <div class="catalogo-card reveal reveal-delay-1">
-      <div class="cat-tipo">Evaluación técnica</div><h3>Diagnóstico Ley I+D</h3>
-      <p>Evaluación técnica de tus actividades de I+D. Informe en 72 hrs con recomendaciones concretas.</p>
-      <div class="cat-footer"><div class="cat-precio">USD $80 <span>/ informe</span></div><button class="btn-comprar" onclick="window.open('https://www.paypal.com/ncp/payment/J8X4747FQ2AYY','_blank')">Pagar ahora</button></div>
-    </div>
-    <div class="catalogo-card reveal reveal-delay-2">
-      <div class="cat-tipo">Recurso digital</div><h3>Guía de postulación CORFO</h3>
-      <p>Template completo con estructura, ejemplos reales y criterios de evaluación para Crea y Valida.</p>
-      <div class="cat-footer"><div class="cat-precio">USD $40 <span>/ descarga</span></div><button class="btn-comprar" onclick="window.open('https://calendly.com/carlosmadridgomez','_blank')">Comprar</button></div>
-    </div>
-    <div class="catalogo-card reveal">
-      <div class="cat-tipo">Formulación</div><h3>Revisión técnica express</h3>
-      <p>Revisión de una propuesta con observaciones detalladas y recomendaciones antes del envío.</p>
-      <div class="cat-footer"><div class="cat-precio">USD $350 <span>/ propuesta</span></div><button class="btn-comprar" onclick="window.open('https://calendly.com/carlosmadridgomez','_blank')">Contratar</button></div>
-    </div>
-    <div class="catalogo-card reveal reveal-delay-1" style="border-color:rgba(170,204,42,.25)">
-      <div style="position:absolute;top:-1px;left:1.5rem;background:var(--lime);color:#060708;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:0 0 8px 8px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif">Más solicitado</div>
-      <div class="cat-tipo" style="margin-top:.5rem">Retainer</div><h3>Acompañamiento mensual</h3>
-      <p>Estrategia de innovación, seguimiento de proyectos activos, identificación de oportunidades y revisión mensual.</p>
-      <div class="cat-footer"><div class="cat-precio">USD $600 <span>/ mes</span></div><button class="btn-comprar" onclick="window.open('https://calendly.com/carlosmadridgomez','_blank')">Contratar</button></div>
-    </div>
-    <div class="catalogo-card reveal reveal-delay-2">
-      <div class="cat-tipo">Formulación completa</div><h3>Proyecto CORFO o ANID</h3>
-      <p>Diagnóstico, formulación integral, revisión y acompañamiento hasta el envío. Precio según instrumento.</p>
-      <div class="cat-footer"><div class="cat-precio">A cotizar</div><button class="btn-contactar" onclick="window.open('https://calendly.com/carlosmadridgomez','_blank')">Consultar</button></div>
-    </div>
-  </div>
+  <div class="catalogo-grid" id="catalogo-grid"></div>
 </section>
 
 <div class="signal"></div>
 
 <section class="section" id="convocatorias">
   <div class="section-tag reveal">Convocatorias abiertas</div>
-  <div class="section-title reveal">¿Tu proyecto tiene financiamiento disponible</div>
-  <p class="section-sub reveal">Fondos activos ahora mismo. Te ayudamos a evaluar si tu proyecto califica.</p>
+  <div class="section-title reveal" id="convocatorias-titulo">¿Tu proyecto tiene financiamiento disponible</div>
+  <p class="section-sub reveal" id="convocatorias-subtitulo">Fondos activos ahora mismo. Te ayudamos a evaluar si tu proyecto califica.</p>
   <div class="conv-list" id="conv-list">
     <div class="conv-skeleton"></div>
     <div class="conv-skeleton" style="animation-delay:.2s"></div>
@@ -397,12 +336,10 @@ footer{border-top:0.5px solid var(--border);padding:2rem 2.5rem;display:flex;ali
 
 <section class="section" id="blog">
   <div class="section-tag reveal">Blog · Opinión</div>
-  <div class="section-title reveal">Ideas sobre innovación, ciencia y estrategia</div>
-  <p class="section-sub reveal">Reflexiones directas sobre el ecosistema de I+D en Chile.</p>
+  <div class="section-title reveal" id="blog-titulo">Ideas sobre innovación, ciencia y estrategia</div>
+  <p class="section-sub reveal" id="blog-subtitulo">Reflexiones directas sobre el ecosistema de I+D en Chile.</p>
   <div class="blog-grid" id="blog-grid">
-    <div class="blog-card reveal"><div class="blog-cat">Financiamiento</div><h3>Por qué la mayoría de las empresas deja dinero CORFO sobre la mesa</h3><p>No es falta de proyectos, es falta de estructura.</p><div class="blog-meta"><span>Mar 2026 · 5 min</span><span style="color:var(--lime)">Leer →</span></div></div>
-    <div class="blog-card reveal reveal-delay-1"><div class="blog-cat">Estrategia</div><h3>Innovar sin fondos públicos: el modelo que nadie enseña en Chile</h3><p>El financiamiento público es una herramienta, no una estrategia.</p><div class="blog-meta"><span>Feb 2026 · 7 min</span><span style="color:var(--lime)">Leer →</span></div></div>
-    <div class="blog-card reveal reveal-delay-2"><div class="blog-cat">Política pública</div><h3>¿Está fallando el ecosistema de innovación chileno</h3><p>Cifras y lo que los fondos no están logrando resolver.</p><div class="blog-meta"><span>Ene 2026 · 8 min</span><span style="color:var(--lime)">Leer →</span></div></div>
+    <div class="blog-empty"><strong>Muy pronto</strong>Estamos preparando las primeras publicaciones sobre innovación, financiamiento público y estrategia.</div>
   </div>
 </section>
 
@@ -540,6 +477,10 @@ async function loadContenido(){
     const map={};data.forEach(r=>map[r.clave]=r.valor);
     if(map.catalogo_titulo)document.getElementById('catalogo-titulo').textContent=map.catalogo_titulo;
     if(map.catalogo_subtitulo)document.getElementById('catalogo-subtitulo').textContent=map.catalogo_subtitulo;
+    if(map.convocatorias_titulo)document.getElementById('convocatorias-titulo').textContent=map.convocatorias_titulo;
+    if(map.convocatorias_subtitulo)document.getElementById('convocatorias-subtitulo').textContent=map.convocatorias_subtitulo;
+    if(map.blog_titulo)document.getElementById('blog-titulo').textContent=map.blog_titulo;
+    if(map.blog_subtitulo)document.getElementById('blog-subtitulo').textContent=map.blog_subtitulo;
   }catch(e){}
 }
 loadContenido();
@@ -559,6 +500,104 @@ async function loadBlog(){
   }catch(e){/* keep static */}
 }
 loadBlog();
+
+/* CASOS DE ÉXITO */
+function formatCLP(n){return '$'+Number(n).toLocaleString('es-CL')}
+function casoCardHtml(c){
+  const logo=c.logo_url
+    ? `<div class="caso-logo"><img src="${c.logo_url}" alt="${c.empresa}"></div>`
+    : `<div class="caso-logo">${(c.empresa||'?').trim().charAt(0).toUpperCase()}</div>`;
+  const monto=c.monto_clp
+    ? `<div class="caso-monto-label">Monto adjudicado</div><div class="caso-monto">${formatCLP(c.monto_clp)}</div>`
+    : '';
+  return `<div class="caso-card reveal visible${c.categoria==='gestion'?' gestion':''}">
+    <div class="caso-header">
+      ${logo}
+      <div><div class="caso-sector">${c.sector||''}</div><div class="caso-empresa">${c.empresa}</div><div class="caso-instrumento">${c.instrumento}</div>${c.codigo_proyecto?`<div class="caso-codigo">Código ${c.codigo_proyecto}</div>`:''}</div>
+    </div>
+    <div class="caso-body">
+      <div class="caso-proyecto">${c.nombre_proyecto||''}</div>
+      <p class="caso-desc">${c.descripcion}</p>
+      ${monto}
+      <span class="caso-tag"${c.categoria==='gestion'?' style="background:rgba(255,255,255,.08);color:#C8CAD4"':''}>${c.tag}</span>
+    </div>
+  </div>`;
+}
+async function loadCasos(){
+  try{
+    const{data}=await sb.from('casos_exito').select('*').eq('activo',true).order('orden');
+    if(!data)return;
+    const adjudicados=data.filter(c=>c.categoria==='adjudicado');
+    const gestion=data.filter(c=>c.categoria==='gestion');
+    const elAdj=document.getElementById('casos-adjudicado');
+    const elGes=document.getElementById('casos-gestion');
+    if(elAdj&&adjudicados.length)elAdj.innerHTML=adjudicados.map(casoCardHtml).join('');
+    if(elGes&&gestion.length)elGes.innerHTML=gestion.map(casoCardHtml).join('');
+  }catch(e){console.error('casos error',e)}
+}
+loadCasos();
+
+/* SERVICIOS */
+const ICONS={
+  roadmap:'<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>',
+  team:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+  bolt:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'
+};
+const TAG_CLASS={lime:'tl',rose:'tr',gray:'tg'};
+async function loadServicios(){
+  try{
+    const{data}=await sb.from('servicios').select('*').eq('activo',true).order('orden');
+    const el=document.getElementById('servicios-grid');
+    if(!el||!data||!data.length)return;
+    el.innerHTML=data.map(s=>{
+      const stroke=s.color==='rose'?'#C4386B':'#AACC2A';
+      const bg=s.color==='rose'?'style="background:rgba(196,56,107,.08)"':'';
+      return `<div class="service-card">
+        <div class="service-icon-wrap" ${bg}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round">${ICONS[s.icono]||ICONS.bolt}</svg></div>
+        <h3>${s.titulo}</h3>
+        <p>${s.descripcion}</p>
+        <div class="service-footer"><span class="tag-pill ${TAG_CLASS[s.tag_color]||'tl'}">${s.tag}</span><a class="arrow-link" href="${s.link_url}">${s.link_texto} <span>→</span></a></div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error('servicios error',e)}
+}
+loadServicios();
+
+/* CÓMO TRABAJAMOS */
+async function loadModelos(){
+  try{
+    const{data}=await sb.from('modelos_trabajo').select('*').eq('activo',true).order('orden');
+    const el=document.getElementById('modelos-grid');
+    if(!el||!data||!data.length)return;
+    el.innerHTML=data.map((m,i)=>{
+      const num=String(i+1).padStart(2,'0');
+      const badge=m.badge?`<span style="position:absolute;top:1.5rem;right:1.5rem;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#6B6E7A;border:0.5px solid var(--border2);border-radius:99px;padding:3px 10px">${m.badge}</span>`:'';
+      return `<div class="model-card reveal visible" style="position:relative">${badge}<div class="model-num">${num}</div><h3>${m.titulo}</h3><p>${m.descripcion}</p></div>`;
+    }).join('');
+  }catch(e){console.error('modelos error',e)}
+}
+loadModelos();
+
+/* CATÁLOGO CON PRECIOS */
+async function loadCatalogo(){
+  try{
+    const{data}=await sb.from('catalogo_servicios').select('*').eq('activo',true).order('orden');
+    const el=document.getElementById('catalogo-grid');
+    if(!el||!data||!data.length)return;
+    el.innerHTML=data.map(c=>{
+      const destacado=c.destacado?`<div style="position:absolute;top:-1px;left:1.5rem;background:var(--lime);color:#060708;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:0 0 8px 8px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif">Más solicitado</div>`:'';
+      const btnClass=c.precio_display==='A cotizar'?'btn-contactar':'btn-comprar';
+      return `<div class="catalogo-card reveal visible"${c.destacado?' style="border-color:rgba(170,204,42,.25)"':''}>
+        ${destacado}
+        <div class="cat-tipo"${c.destacado?' style="margin-top:.5rem"':''}>${c.tipo}</div><h3>${c.titulo}</h3>
+        <p>${c.descripcion}</p>
+        <div class="cat-footer"><div class="cat-precio">${c.precio_display} ${c.precio_label?`<span>${c.precio_label}</span>`:''}</div><button class="${btnClass}" onclick="window.open('${c.boton_url}','_blank')">${c.boton_texto}</button></div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error('catalogo error',e)}
+}
+loadCatalogo();
 
 /* CONVOCATORIAS */
 async function loadConvocatorias(){
